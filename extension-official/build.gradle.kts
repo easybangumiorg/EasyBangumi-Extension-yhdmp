@@ -31,5 +31,5 @@ android {
 }
 
 dependencies {
-    implementation("io.github.easybangumiorg:extension-api:1.0-SNAPSHOT")
+    compileOnly("io.github.easybangumiorg:extension-api:1.0-SNAPSHOT")
 }
