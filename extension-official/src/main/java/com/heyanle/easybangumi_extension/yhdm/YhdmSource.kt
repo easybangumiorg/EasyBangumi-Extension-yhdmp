@@ -6,10 +6,7 @@ import com.heyanle.bangumi_source_api.api2.Source
 import com.heyanle.bangumi_source_api.api2.component.Component
 import com.heyanle.bangumi_source_api.api2.component.ComponentBuilderScope
 import com.heyanle.bangumi_source_api.api2.component.page.ListPage
-import com.heyanle.bangumi_source_api.api2.component.page.listPageGroup
-import com.heyanle.bangumi_source_api.api2.component.page.listPageGroupTab
-import com.heyanle.bangumi_source_api.api2.component.page.singleListPage
-import com.heyanle.bangumi_source_api.api2.component.search.search
+import com.heyanle.bangumi_source_api.api2.component.page.SingleListPage
 import com.heyanle.bangumi_source_api.api2.entity.CartoonCover
 import com.heyanle.bangumi_source_api.api2.entity.CartoonCoverImpl
 import com.heyanle.bangumi_source_api.api2.withResult
@@ -137,7 +134,13 @@ class YhdmSource: Source, ExtensionIconSource {
                     }
                 r.add(car)
             }
-            res.add(singleListPage(tag.text(), r))
+
+            res.add(SingleListPage(
+                tag.text(),
+                this,
+                false,
+                r
+            ))
         }
         return res
     }
