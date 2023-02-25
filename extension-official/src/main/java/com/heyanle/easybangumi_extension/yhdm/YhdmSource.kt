@@ -1,5 +1,6 @@
 package com.heyanle.easybangumi_extension.yhdm
 
+import android.util.Log
 import com.heyanle.bangumi_source_api.api.ISourceParser
 import com.heyanle.bangumi_source_api.api.entity.Bangumi
 import com.heyanle.bangumi_source_api.api2.Source
@@ -24,7 +25,7 @@ import org.jsoup.Jsoup
 class YhdmSource: Source, ExtensionIconSource {
 
     companion object {
-        const val ROOT_URL = "http://www.yinghuacd.com"
+        const val ROOT_URL = "https://www.yhdmp.net/"
     }
 
     fun url(source: String): String {
@@ -38,9 +39,9 @@ class YhdmSource: Source, ExtensionIconSource {
     override val describe: String?
         get() = null
     override val key: String
-        get() = "yhdm"
+        get() = "yhdmp"
     override val label: String
-        get() = "樱花动漫"
+        get() = "樱花动漫P"
     override val version: String
         get() = "1.0"
     override val versionCode: Int
@@ -81,11 +82,15 @@ class YhdmSource: Source, ExtensionIconSource {
         val children = doc.select("div.firs.l div.dtit").iterator()
         children.forEach {
             val u = it.child(0).child(0)
+            // 获取参数
+            Log.d("YhdmSource", u.toString())
             val label = u.text()
             val ur = u.attr("href")
             val map = hashMapOf<String, String>()
 
+
             // 获取参数
+            Log.d("YhdmSource", ur)
             ur.substringAfter("?").split("&").forEach { 
                 val dd = it.split("=")
                 if(dd.size == 2){

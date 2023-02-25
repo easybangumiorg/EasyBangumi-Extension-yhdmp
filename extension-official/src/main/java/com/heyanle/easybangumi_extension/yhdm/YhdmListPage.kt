@@ -1,5 +1,6 @@
 package com.heyanle.easybangumi_extension.yhdm
 
+import android.util.Log
 import com.heyanle.bangumi_source_api.api2.entity.CartoonCover
 import com.heyanle.bangumi_source_api.api2.entity.CartoonCoverImpl
 import org.jsoup.Jsoup
@@ -103,6 +104,7 @@ suspend fun YhdmSource.listPage(
         }
     }
     val u = url("/list/?${args}&pageindex=${page-1}")
+    Log.d("YhdmListPage"," listPage ${u}")
     val doc = Jsoup.connect(u).get()
     val r = arrayListOf<CartoonCover>()
     doc.select("body div.fire.l div.lpic ul li").forEach {
