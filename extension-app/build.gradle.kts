@@ -1,3 +1,5 @@
+
+
 plugins {
     id ("com.android.application")
     id ("org.jetbrains.kotlin.android")
@@ -9,8 +11,8 @@ android {
 
     defaultConfig {
         applicationId = "com.heyanle.easybangumi_extension"
-        minSdk = 21
-        targetSdk = 33
+        minSdk =  21
+        targetSdk =  33
         versionCode = 1
         versionName = "1.0"
 
@@ -19,10 +21,10 @@ android {
     buildTypes {
         release {
             postprocessing {
-                isRemoveUnusedCode = false
-                isRemoveUnusedResources = false
+                isRemoveUnusedCode = true
+                isRemoveUnusedResources = true
                 isObfuscate = false
-                isOptimizeCode = false
+                isOptimizeCode = true
                 proguardFiles("proguard-rules.pro")
             }
         }
@@ -34,7 +36,13 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
+    dependenciesInfo{
+        includeInApk = false
+        includeInBundle = false
+    }
 }
+
 
 dependencies {
     compileOnly("io.github.easybangumiorg:extension-api:1.0-SNAPSHOT")

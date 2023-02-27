@@ -15,4 +15,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "EasyBangumi-Extension"
-include(":extension-official")
+include(":extension-app")

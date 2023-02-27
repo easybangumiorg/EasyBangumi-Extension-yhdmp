@@ -1,8 +1,9 @@
 package com.heyanle.easybangumi_extension.yhdm
 
 import android.util.Log
-import com.heyanle.bangumi_source_api.api2.entity.CartoonCover
-import com.heyanle.bangumi_source_api.api2.entity.CartoonCoverImpl
+import com.heyanle.bangumi_source_api.api.Source
+import com.heyanle.bangumi_source_api.api.entity.CartoonCover
+import com.heyanle.bangumi_source_api.api.entity.CartoonCoverImpl
 import org.jsoup.Jsoup
 
 /**
@@ -11,7 +12,7 @@ import org.jsoup.Jsoup
  */
 
 // 获取 樱花动漫 筛选页面 某一页的数据
-suspend fun YhdmSource.listPage(
+suspend fun Source.listPage(
     order: String? = null,
     genre: String? = null,
     letter: String? = null,
@@ -88,7 +89,7 @@ suspend fun YhdmSource.listPage(
 
 }
 
-suspend fun YhdmSource.listPage(
+suspend fun Source.listPage(
     map: Map<String, String>,
     page: Int,
 ): Pair<Int?, List<CartoonCover>> {
@@ -139,3 +140,4 @@ suspend fun YhdmSource.listPage(
     }
 
 }
+
