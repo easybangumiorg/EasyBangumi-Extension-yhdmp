@@ -1,9 +1,9 @@
 package com.heyanle.easybangumi_extension.yhdm
 
+import com.heyanle.lib_anim.utils.SourceUtils
 import com.heyanle.bangumi_source_api.api.Source
 import com.heyanle.easybangumi_extension.R
 import com.heyanle.extension_api.ExtensionIconSource
-import com.heyanle.lib_anim.utils.SourceUtils
 
 /**
  * Created by HeYanLe on 2023/2/25 15:19.
