@@ -19,7 +19,8 @@ class YhdmPageImpl(source: YhdmSource) : PageSourceWrapper(source) {
         return listOf(
             // 首页
             SourcePage.Group (
-                label
+                label,
+                false,
             ){
                 withResult(Dispatchers.IO) {
                     homeListPages()
@@ -27,11 +28,12 @@ class YhdmPageImpl(source: YhdmSource) : PageSourceWrapper(source) {
             },
 
             // 新番时刻表
-            SourcePage.GroupWithScreen (
-                label
+            SourcePage.Group (
+                label,
+                true,
             ){
                 withResult(Dispatchers.IO) {
-                    homeListPages()
+                    homeTimelinePages()
                 }
             },
         )
