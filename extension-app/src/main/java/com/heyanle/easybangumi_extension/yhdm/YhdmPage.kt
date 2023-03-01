@@ -1,11 +1,14 @@
 package com.heyanle.easybangumi_extension.yhdm
 
 import android.util.Log
+import com.heyanle.bangumi_source_api.api.component.ComponentWrapper
+import com.heyanle.bangumi_source_api.api.component.page.PageComponent
+import com.heyanle.bangumi_source_api.api.component.page.SourcePage
 import com.heyanle.bangumi_source_api.api.entity.CartoonCover
 import com.heyanle.bangumi_source_api.api.entity.CartoonCoverImpl
-import com.heyanle.bangumi_source_api.api.page.PageSourceWrapper
-import com.heyanle.bangumi_source_api.api.page.SourcePage
 import com.heyanle.bangumi_source_api.api.withResult
+import com.heyanle.lib_anim.utils.network.GET
+import com.heyanle.lib_anim.utils.network.networkHelper
 import kotlinx.coroutines.Dispatchers
 import org.jsoup.Jsoup
 
@@ -13,13 +16,13 @@ import org.jsoup.Jsoup
  * Created by HeYanLe on 2023/2/27 23:17.
  * https://github.com/heyanLE
  */
-class YhdmPageImpl(source: YhdmSource) : PageSourceWrapper(source) {
+class YhdmPageImpl(source: YhdmSource) : ComponentWrapper(source), PageComponent {
 
     override fun getPages(): List<SourcePage> {
         return listOf(
             // 首页
             SourcePage.Group (
-                label,
+                "首页",
                 false,
             ){
                 withResult(Dispatchers.IO) {
@@ -29,8 +32,8 @@ class YhdmPageImpl(source: YhdmSource) : PageSourceWrapper(source) {
 
             // 新番时刻表
             SourcePage.Group (
-                label,
-                true,
+                "每日更新列表",
+                false,
             ){
                 withResult(Dispatchers.IO) {
                     homeTimelinePages()
@@ -42,15 +45,11 @@ class YhdmPageImpl(source: YhdmSource) : PageSourceWrapper(source) {
     // 获取主页所有 ListPage
     private suspend fun homeListPages(): List<SourcePage.SingleCartoonPage> {
         val res = arrayListOf<SourcePage.SingleCartoonPage>()
-
-        val doc = Jsoup.connect(url(YhdmSource.ROOT_URL)).get()
-        val children = doc.select("div.firs.l div.dtit").iterator()
+        val doc = Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(url(YhdmSource.ROOT_URL))).execute().body?.string()!!)
+        val children = doc.select("div.list div.listtit a.listtitle").iterator()
         children.forEach {
-            val u = it.child(0).child(0)
-            // 获取参数
-            Log.d("YhdmSource", u.toString())
-            val label = u.text()
-            val ur = u.attr("href")
+            val label = it.text()
+            val ur = it.attr("href")
             val map = hashMapOf<String, String>()
 
 
@@ -67,7 +66,7 @@ class YhdmPageImpl(source: YhdmSource) : PageSourceWrapper(source) {
                 firstKey = {0},
             ){
                 withResult(Dispatchers.IO){
-                    listPage(
+                    source.listPage(
                         map,
                         page = it
                     )
@@ -82,19 +81,19 @@ class YhdmPageImpl(source: YhdmSource) : PageSourceWrapper(source) {
     // 获取新番时刻表 ListPage
     private suspend fun homeTimelinePages(): List<SourcePage.SingleCartoonPage> {
         val res = arrayListOf<SourcePage.SingleCartoonPage>()
-        val doc = Jsoup.connect(url(YhdmSource.ROOT_URL)).get()
-        val tags = doc.select("div.side.r div.dtit div.tag span").iterator()
-        val items = doc.select("div.side.r div.dtit div.tlist ul").iterator()
+        val doc = Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(url(YhdmSource.ROOT_URL))).execute().body?.string()!!)
+        val tags = doc.select("body div.tag span").iterator()
+        val items = doc.select("body div.tlist ul").iterator()
         while(tags.hasNext() && items.hasNext()){
             val tag = tags.next()
             val item = items.next()
             val r = arrayListOf<CartoonCover>()
             item.children().forEach {
-                val detailUrl = url(it.child(0).child(0).attr("href"))
+                val detailUrl = url(it.child(1).attr("href"))
                 val car = CartoonCoverImpl()
                     .apply {
-                        id = "${key}-$detailUrl"
-                        source = key
+                        id = "${this@YhdmPageImpl.source.key}-$detailUrl"
+                        source = this@YhdmPageImpl.source.key
                         this.url = detailUrl
                         title = it.child(1).text()
                         intro = it.child(0).text()
@@ -106,7 +105,7 @@ class YhdmPageImpl(source: YhdmSource) : PageSourceWrapper(source) {
             res.add(
                 SourcePage.SingleCartoonPage.WithoutCover(
                 tag.text(),
-                firstKey = {1},
+                firstKey = {0},
                 load = {
                     withResult {
                         null to r

@@ -2,8 +2,10 @@ package com.heyanle.easybangumi_extension.yhdm
 
 import com.heyanle.lib_anim.utils.SourceUtils
 import com.heyanle.bangumi_source_api.api.Source
+import com.heyanle.bangumi_source_api.api.component.Component
 import com.heyanle.easybangumi_extension.R
 import com.heyanle.extension_api.ExtensionIconSource
+import com.heyanle.extension_api.ExtensionSource
 
 /**
  * Created by HeYanLe on 2023/2/25 15:19.
@@ -13,10 +15,10 @@ import com.heyanle.extension_api.ExtensionIconSource
 fun url(source: String): String {
     return SourceUtils.urlParser(YhdmSource.ROOT_URL, source)
 }
-class YhdmSource: Source, ExtensionIconSource {
+class YhdmSource: ExtensionSource(), ExtensionIconSource {
 
     companion object {
-        const val ROOT_URL = "https://www.yhdmp.net/"
+        const val ROOT_URL = "https://m.yhdmp.net"
 
 
     }
@@ -27,8 +29,6 @@ class YhdmSource: Source, ExtensionIconSource {
 
     override val describe: String?
         get() = null
-    override val key: String
-        get() = "yhdmp"
     override val label: String
         get() = "樱花动漫P"
     override val version: String
@@ -36,11 +36,13 @@ class YhdmSource: Source, ExtensionIconSource {
     override val versionCode: Int
         get() = 0
 
+    override val sourceKey: String
+        get() = "yhdmp"
 
     /**
      * 拆分
      */
-    override fun sources(): List<Source> {
+    override fun components(): List<Component> {
         return listOf(
             YhdmSearchImpl(this),
             YhdmPageImpl(this)

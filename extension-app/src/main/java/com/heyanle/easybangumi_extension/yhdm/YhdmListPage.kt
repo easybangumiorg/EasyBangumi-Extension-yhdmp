@@ -4,6 +4,8 @@ import android.util.Log
 import com.heyanle.bangumi_source_api.api.Source
 import com.heyanle.bangumi_source_api.api.entity.CartoonCover
 import com.heyanle.bangumi_source_api.api.entity.CartoonCoverImpl
+import com.heyanle.lib_anim.utils.network.GET
+import com.heyanle.lib_anim.utils.network.networkHelper
 import org.jsoup.Jsoup
 
 /**
@@ -53,22 +55,29 @@ suspend fun Source.listPage(
         }
 
     }
-    val u = url("/list/?${args}&pageindex=${page-1}")
-    val doc = Jsoup.connect(u).get()
+    val u = url("/list/?${args}&pageindex=${page}")
+    val doc = Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(u)).execute().body?.string()!!)
     val r = arrayListOf<CartoonCover>()
-    doc.select("body div.fire.l div.lpic ul li").forEach {
-        val detailUrl = url(it.child(0).attr("href"))
+    doc.select("body div.list ul li").forEach {
+        val detailUrl = url(it.child(0).child(0).attr("href"))
+        val coverStyle = it.child(0).child(0).child(0).child(0).attr("style")
+        val coverPattern = Regex("""(?<=url\(').*(?='\))""")
+        var cover = coverPattern.find(coverStyle)?.value ?: ""
+        if (cover.startsWith("//")) {
+            cover = "https:${cover}"
+        }
         val b = CartoonCoverImpl()
             .apply {
                 id = "${key}-$detailUrl"
                 source = key
                 this.url = detailUrl
                 title = it.child(1).text()
-                intro = it.child(2).text()
-                coverUrl = url(it.child(0).child(0).attr("src"))
+                intro = it.child(0).child(0).child(0).child(1).text()
+                coverUrl = cover
             }
         r.add(b)
     }
+
     val pages = doc.select("div.pages a")
     return if (pages.isEmpty()) {
         Pair(null, r)
@@ -104,20 +113,26 @@ suspend fun Source.listPage(
             setLength(length-1)
         }
     }
-    val u = url("/list/?${args}&pageindex=${page-1}")
+    val u = url("/list/?${args}&pageindex=${page}")
     Log.d("YhdmListPage"," listPage ${u}")
-    val doc = Jsoup.connect(u).get()
+    val doc = Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(u)).execute().body?.string()!!)
     val r = arrayListOf<CartoonCover>()
-    doc.select("body div.fire.l div.lpic ul li").forEach {
-        val detailUrl = url(it.child(0).attr("href"))
+    doc.select("body div.list ul li").forEach {
+        val detailUrl = url(it.child(0).child(0).attr("href"))
+        val coverStyle = it.child(0).child(0).child(0).child(0).attr("style")
+        val coverPattern = Regex("""(?<=url\(').*(?='\))""")
+        var cover = coverPattern.find(coverStyle)?.value ?: ""
+        if (cover.startsWith("//")) {
+            cover = "https:${cover}"
+        }
         val b = CartoonCoverImpl()
             .apply {
                 id = "${key}-$detailUrl"
                 source = key
                 this.url = detailUrl
                 title = it.child(1).text()
-                intro = it.child(2).text()
-                coverUrl = url(it.child(0).child(0).attr("src"))
+                intro = it.child(0).child(0).child(0).child(1).text()
+                coverUrl = cover
             }
         r.add(b)
     }
