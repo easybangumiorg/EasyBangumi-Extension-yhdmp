@@ -16,7 +16,7 @@ import org.jsoup.Jsoup
  * Created by HeYanLe on 2023/2/27 23:17.
  * https://github.com/heyanLE
  */
-class YhdmPageImpl(source: YhdmSource) : ComponentWrapper(source), PageComponent {
+class YhdmPageComponent(source: YhdmSource) : ComponentWrapper(source), PageComponent {
 
     override fun getPages(): List<SourcePage> {
         return listOf(
@@ -92,8 +92,8 @@ class YhdmPageImpl(source: YhdmSource) : ComponentWrapper(source), PageComponent
                 val detailUrl = url(it.child(1).attr("href"))
                 val car = CartoonCoverImpl()
                     .apply {
-                        id = "${this@YhdmPageImpl.source.key}-$detailUrl"
-                        source = this@YhdmPageImpl.source.key
+                        id = "${this@YhdmPageComponent.source.key}-$detailUrl"
+                        source = this@YhdmPageComponent.source.key
                         this.url = detailUrl
                         title = it.child(1).text()
                         intro = it.child(0).text()

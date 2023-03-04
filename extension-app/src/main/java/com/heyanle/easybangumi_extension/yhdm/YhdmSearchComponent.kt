@@ -16,7 +16,7 @@ import org.jsoup.Jsoup
  * https://github.com/heyanLE
  */
 
-class YhdmSearchImpl(source: YhdmSource): ComponentWrapper(source), SearchComponent{
+class YhdmSearchComponent(source: YhdmSource): ComponentWrapper(source), SearchComponent{
     override fun getFirstSearchKey(keyword: String): Int {
         return 0
     }
@@ -35,12 +35,12 @@ class YhdmSearchImpl(source: YhdmSource): ComponentWrapper(source), SearchCompon
                 val cover = coverPattern.find(coverStyle)?.value ?: ""
 
                 val b = CartoonCoverImpl().apply {
-                    id = "${this@YhdmSearchImpl.source.key}-$detailUrl"
+                    id = "${this@YhdmSearchComponent.source.key}-$detailUrl"
                     title = it.child(1).text()
                     this.url = detailUrl
                     intro = it.select("div.itemimgtext")[0].text()
                     coverUrl = "https:${cover}"
-                    source = this@YhdmSearchImpl.source.key
+                    source = this@YhdmSearchComponent.source.key
                 }
                 r.add(b)
             }

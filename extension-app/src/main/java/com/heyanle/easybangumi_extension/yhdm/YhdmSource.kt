@@ -1,7 +1,6 @@
 package com.heyanle.easybangumi_extension.yhdm
 
 import com.heyanle.lib_anim.utils.SourceUtils
-import com.heyanle.bangumi_source_api.api.Source
 import com.heyanle.bangumi_source_api.api.component.Component
 import com.heyanle.easybangumi_extension.R
 import com.heyanle.extension_api.ExtensionIconSource
@@ -44,8 +43,10 @@ class YhdmSource: ExtensionSource(), ExtensionIconSource {
      */
     override fun components(): List<Component> {
         return listOf(
-            YhdmSearchImpl(this),
-            YhdmPageImpl(this)
+            YhdmSearchComponent(this),
+            YhdmPageComponent(this),
+            YhdmDetailedComponent(this),
+            YhdmPlayComponent(this),
         )
     }
 
