@@ -49,9 +49,6 @@ class YhdmDetailedComponent(
     }
 
     private fun playLine(doc: Document, summary: CartoonSummary) : List<PlayLine> {
-        val d = networkHelper.cloudflareUserClient.newCall(GET(url(summary.url)))
-            .execute().body?.string() ?: throw NullPointerException()
-        val doc = Jsoup.parse(d)
         val tabs = doc.select("body div.tabs")[0]
         val title = tabs.child(0).children().iterator()
         val epRoot = doc.select("body div.tabs div.movurl ul").iterator()
