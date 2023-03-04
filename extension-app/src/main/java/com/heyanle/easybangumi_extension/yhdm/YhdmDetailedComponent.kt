@@ -7,11 +7,13 @@ import com.heyanle.bangumi_source_api.api.component.page.PageComponent
 import com.heyanle.bangumi_source_api.api.entity.Cartoon
 import com.heyanle.bangumi_source_api.api.entity.CartoonImpl
 import com.heyanle.bangumi_source_api.api.entity.CartoonSummary
+import com.heyanle.bangumi_source_api.api.entity.PlayLine
 import com.heyanle.bangumi_source_api.api.withResult
 import com.heyanle.lib_anim.utils.network.GET
 import com.heyanle.lib_anim.utils.network.networkHelper
 import kotlinx.coroutines.Dispatchers
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 
 /**
  * Created by HeYanLe on 2023/3/4 14:39.
@@ -21,17 +23,59 @@ class YhdmDetailedComponent(
     source: YhdmSource
 ) : ComponentWrapper(source), DetailedComponent {
 
+
     override suspend fun getDetailed(summary: CartoonSummary): SourceResult<Cartoon> {
         return withResult(Dispatchers.IO) {
-            detailed(summary)
+            detailed(getDoc(summary), summary)
         }
     }
 
+    override suspend fun getPlayLine(summary: CartoonSummary): SourceResult<List<PlayLine>> {
+        return withResult(Dispatchers.IO) {
+            playLine(getDoc(summary), summary)
+        }
+    }
 
-    private fun detailed(summary: CartoonSummary): Cartoon {
+    override suspend fun getAll(summary: CartoonSummary): SourceResult<Pair<Cartoon, List<PlayLine>>> {
+        return withResult(Dispatchers.IO) {
+            detailed(getDoc(summary), summary) to playLine(getDoc(summary), summary)
+        }
+    }
+
+    private fun getDoc(summary: CartoonSummary): Document {
+        val d = networkHelper.cloudflareUserClient.newCall(GET(url(summary.url)))
+            .execute().body?.string() ?: throw NullPointerException()
+        return Jsoup.parse(d)
+    }
+
+    private fun playLine(doc: Document, summary: CartoonSummary) : List<PlayLine> {
         val d = networkHelper.cloudflareUserClient.newCall(GET(url(summary.url)))
             .execute().body?.string() ?: throw NullPointerException()
         val doc = Jsoup.parse(d)
+        val tabs = doc.select("body div.tabs")[0]
+        val title = tabs.child(0).children().iterator()
+        val epRoot = doc.select("body div.tabs div.movurl ul").iterator()
+        val res = arrayListOf<PlayLine>()
+        while (title.hasNext() && epRoot.hasNext()){
+            val tit = title.next()
+            val ep = epRoot.next()
+            val es = arrayListOf<String>()
+            ep.children().forEach {
+                es.add(it.text())
+            }
+            val playLine = PlayLine(
+                key = summary.source,
+                id = 0,
+                label = tit.text(),
+                episode = es
+            )
+            res.add(playLine)
+        }
+        return res
+    }
+
+
+    private fun detailed(doc: Document, summary: CartoonSummary): Cartoon {
         val show = doc.select("body div.list div.show")[0]
         val title = show.child(1).text()
         val cover = url(show.child(0).attr("src"))
@@ -88,10 +132,7 @@ class YhdmDetailedComponent(
 
             status = status,
             updateStrategy = update,
-        ).apply {
-
-
-        }
+        )
 
     }
 }

@@ -23,7 +23,4 @@ class YhdmPlayComponent(
         TODO("Not yet implemented")
     }
 
-    override suspend fun getPlayLine(summary: CartoonSummary): SourceResult<PlayLine> {
-        TODO("Not yet implemented")
-    }
 }
