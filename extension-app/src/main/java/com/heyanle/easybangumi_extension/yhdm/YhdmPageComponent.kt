@@ -21,20 +21,20 @@ class YhdmPageComponent(source: YhdmSource) : ComponentWrapper(source), PageComp
     override fun getPages(): List<SourcePage> {
         return listOf(
             // 首页
-            SourcePage.Group (
+            SourcePage.Group(
                 "首页",
                 false,
-            ){
+            ) {
                 withResult(Dispatchers.IO) {
                     homeListPages()
                 }
             },
 
             // 新番时刻表
-            SourcePage.Group (
+            SourcePage.Group(
                 "每日更新列表",
                 false,
-            ){
+            ) {
                 withResult(Dispatchers.IO) {
                     homeTimelinePages()
                 }
@@ -45,7 +45,10 @@ class YhdmPageComponent(source: YhdmSource) : ComponentWrapper(source), PageComp
     // 获取主页所有 ListPage
     private suspend fun homeListPages(): List<SourcePage.SingleCartoonPage> {
         val res = arrayListOf<SourcePage.SingleCartoonPage>()
-        val doc = Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(url(YhdmSource.ROOT_URL))).execute().body?.string()!!)
+        val doc = Jsoup.parse(
+            networkHelper.cloudflareUserClient.newCall(GET(url(YhdmSource.ROOT_URL)))
+                .execute().body?.string()!!
+        )
         val children = doc.select("div.list div.listtit a.listtitle").iterator()
         children.forEach {
             val label = it.text()
@@ -57,15 +60,15 @@ class YhdmPageComponent(source: YhdmSource) : ComponentWrapper(source), PageComp
             Log.d("YhdmSource", ur)
             ur.substringAfter("?").split("&").forEach {
                 val dd = it.split("=")
-                if(dd.size == 2){
+                if (dd.size == 2) {
                     map[dd[0]] = dd[1]
                 }
             }
             val page = SourcePage.SingleCartoonPage.WithCover(
                 label = label,
-                firstKey = {0},
-            ){
-                withResult(Dispatchers.IO){
+                firstKey = { 0 },
+            ) {
+                withResult(Dispatchers.IO) {
                     source.listPage(
                         map,
                         page = it
@@ -81,37 +84,39 @@ class YhdmPageComponent(source: YhdmSource) : ComponentWrapper(source), PageComp
     // 获取新番时刻表 ListPage
     private suspend fun homeTimelinePages(): List<SourcePage.SingleCartoonPage> {
         val res = arrayListOf<SourcePage.SingleCartoonPage>()
-        val doc = Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(url(YhdmSource.ROOT_URL))).execute().body?.string()!!)
+        val doc = Jsoup.parse(
+            networkHelper.cloudflareUserClient.newCall(GET(url(YhdmSource.ROOT_URL)))
+                .execute().body?.string()!!
+        )
         val tags = doc.select("body div.tag span").iterator()
         val items = doc.select("body div.tlist ul").iterator()
-        while(tags.hasNext() && items.hasNext()){
+        while (tags.hasNext() && items.hasNext()) {
             val tag = tags.next()
             val item = items.next()
             val r = arrayListOf<CartoonCover>()
             item.children().forEach {
                 val detailUrl = url(it.child(1).attr("href"))
-                val car = CartoonCoverImpl()
-                    .apply {
-                        id = "${this@YhdmPageComponent.source.key}-$detailUrl"
-                        source = this@YhdmPageComponent.source.key
-                        this.url = detailUrl
-                        title = it.child(1).text()
-                        intro = it.child(0).text()
-                        coverUrl = null
-                    }
+                val car = CartoonCoverImpl(
+                    id = "${this@YhdmPageComponent.source.key}-$detailUrl",
+                    source = this@YhdmPageComponent.source.key,
+                    url = detailUrl,
+                    title = it.child(1).text(),
+                    intro = it.child(0).text(),
+                    coverUrl = null,
+                )
                 r.add(car)
             }
 
             res.add(
                 SourcePage.SingleCartoonPage.WithoutCover(
-                tag.text(),
-                firstKey = {0},
-                load = {
-                    withResult {
-                        null to r
+                    tag.text(),
+                    firstKey = { 0 },
+                    load = {
+                        withResult {
+                            null to r
+                        }
                     }
-                }
-            ))
+                ))
         }
         return res
     }

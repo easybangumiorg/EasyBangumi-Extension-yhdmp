@@ -50,13 +50,14 @@ suspend fun Source.listPage(
         label?.let {
             append("label=${it}&")
         }
-        if(endsWith("&")){
-            setLength(length-1)
+        if (endsWith("&")) {
+            setLength(length - 1)
         }
 
     }
     val u = url("/list/?${args}&pageindex=${page}")
-    val doc = Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(u)).execute().body?.string()!!)
+    val doc =
+        Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(u)).execute().body?.string()!!)
     val r = arrayListOf<CartoonCover>()
     doc.select("body div.list ul li").forEach {
         val detailUrl = url(it.child(0).child(0).attr("href"))
@@ -66,15 +67,14 @@ suspend fun Source.listPage(
         if (cover.startsWith("//")) {
             cover = "https:${cover}"
         }
-        val b = CartoonCoverImpl()
-            .apply {
-                id = "${key}-$detailUrl"
-                source = key
-                this.url = detailUrl
-                title = it.child(1).text()
-                intro = it.child(0).child(0).child(0).child(1).text()
-                coverUrl = cover
-            }
+        val b = CartoonCoverImpl(
+            id = "${key}-$detailUrl",
+            source = key,
+            url = detailUrl,
+            title = it.child(1).text(),
+            intro = it.child(0).child(0).child(0).child(1).text(),
+            coverUrl = cover,
+        )
         r.add(b)
     }
 
@@ -83,8 +83,8 @@ suspend fun Source.listPage(
         Pair(null, r)
     } else {
         var hasNext = false
-        for(p in pages){
-            if(p.text() == (page+2).toString() || p.text() == "下一页"){
+        for (p in pages) {
+            if (p.text() == (page + 2).toString() || p.text() == "下一页") {
                 hasNext = true
                 break
             }
@@ -109,13 +109,14 @@ suspend fun Source.listPage(
             append(it.value)
             append("&")
         }
-        if(endsWith("&")){
-            setLength(length-1)
+        if (endsWith("&")) {
+            setLength(length - 1)
         }
     }
     val u = url("/list/?${args}&pageindex=${page}")
-    Log.d("YhdmListPage"," listPage ${u}")
-    val doc = Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(u)).execute().body?.string()!!)
+    Log.d("YhdmListPage", " listPage ${u}")
+    val doc =
+        Jsoup.parse(networkHelper.cloudflareUserClient.newCall(GET(u)).execute().body?.string()!!)
     val r = arrayListOf<CartoonCover>()
     doc.select("body div.list ul li").forEach {
         val detailUrl = url(it.child(0).child(0).attr("href"))
@@ -125,15 +126,15 @@ suspend fun Source.listPage(
         if (cover.startsWith("//")) {
             cover = "https:${cover}"
         }
-        val b = CartoonCoverImpl()
-            .apply {
-                id = "${key}-$detailUrl"
-                source = key
-                this.url = detailUrl
-                title = it.child(1).text()
-                intro = it.child(0).child(0).child(0).child(1).text()
-                coverUrl = cover
-            }
+        val b = CartoonCoverImpl(
+            id = "${key}-$detailUrl",
+            source = key,
+            url = detailUrl,
+            title = it.child(1).text(),
+            intro = it.child(0).child(0).child(0).child(1).text(),
+            coverUrl = cover
+        )
+
         r.add(b)
     }
     val pages = doc.select("div.pages a")
@@ -141,8 +142,8 @@ suspend fun Source.listPage(
         Pair(null, r)
     } else {
         var hasNext = false
-        for(p in pages){
-            if(p.text() == (page+2).toString() || p.text() == "下一页"){
+        for (p in pages) {
+            if (p.text() == (page + 2).toString() || p.text() == "下一页") {
                 hasNext = true
                 break
             }

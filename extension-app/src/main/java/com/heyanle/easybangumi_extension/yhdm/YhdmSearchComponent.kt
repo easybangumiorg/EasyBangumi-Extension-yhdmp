@@ -16,16 +16,20 @@ import org.jsoup.Jsoup
  * https://github.com/heyanLE
  */
 
-class YhdmSearchComponent(source: YhdmSource): ComponentWrapper(source), SearchComponent{
+class YhdmSearchComponent(source: YhdmSource) : ComponentWrapper(source), SearchComponent {
     override fun getFirstSearchKey(keyword: String): Int {
         return 0
     }
 
 
-    override suspend fun search(pageKey: Int, keyword: String): SourceResult<Pair<Int?, List<CartoonCover>>> {
+    override suspend fun search(
+        pageKey: Int,
+        keyword: String
+    ): SourceResult<Pair<Int?, List<CartoonCover>>> {
         return withResult(Dispatchers.IO) {
             val url = url("/s_all?pageindex=${pageKey}&kw=$keyword&pagesize=24")
-            val d = networkHelper.cloudflareUserClient.newCall(GET(url(url))).execute().body?.string()!!
+            val d =
+                networkHelper.cloudflareUserClient.newCall(GET(url(url))).execute().body?.string()!!
             val doc = Jsoup.parse(d)
             val r = arrayListOf<CartoonCover>()
             doc.select("li").forEach {
@@ -34,14 +38,14 @@ class YhdmSearchComponent(source: YhdmSource): ComponentWrapper(source), SearchC
                 val coverPattern = Regex("""(?<=url\(').*(?='\))""")
                 val cover = coverPattern.find(coverStyle)?.value ?: ""
 
-                val b = CartoonCoverImpl().apply {
-                    id = "${this@YhdmSearchComponent.source.key}-$detailUrl"
-                    title = it.child(1).text()
-                    this.url = detailUrl
-                    intro = it.select("div.itemimgtext")[0].text()
-                    coverUrl = "https:${cover}"
-                    source = this@YhdmSearchComponent.source.key
-                }
+                val b = CartoonCoverImpl(
+                    id = "${this@YhdmSearchComponent.source.key}-$detailUrl",
+                    title = it.child(1).text(),
+                    url = detailUrl,
+                    intro = it.select("div.itemimgtext")[0].text(),
+                    coverUrl = "https:${cover}",
+                    source = this@YhdmSearchComponent.source.key,
+                )
                 r.add(b)
             }
             val pages = doc.select("div.pages a")
@@ -49,8 +53,8 @@ class YhdmSearchComponent(source: YhdmSource): ComponentWrapper(source), SearchC
                 Pair(null, r)
             } else {
                 var hasNext = false
-                for(p in pages){
-                    if(p.text() == (pageKey+2).toString() || p.text() == "下一页"){
+                for (p in pages) {
+                    if (p.text() == (pageKey + 2).toString() || p.text() == "下一页") {
                         hasNext = true
                         break
                     }

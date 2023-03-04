@@ -48,16 +48,16 @@ class YhdmDetailedComponent(
         val desc = doc.select("body div.info").text()
 
         val update =
-            if(isTheater){
-                if(status == Cartoon.STATUS_COMPLETED){
+            if (isTheater) {
+                if (status == Cartoon.STATUS_COMPLETED) {
                     Cartoon.UPDATE_STRATEGY_NEVER
-                }else{
+                } else {
                     Cartoon.UPDATE_STRATEGY_ONLY_MANUAL
                 }
-            }else{
-                if(status == Cartoon.STATUS_COMPLETED){
+            } else {
+                if (status == Cartoon.STATUS_COMPLETED) {
                     Cartoon.UPDATE_STRATEGY_ONLY_MANUAL
-                }else{
+                } else {
                     Cartoon.UPDATE_STRATEGY_ALWAYS
                 }
             }
@@ -69,25 +69,27 @@ class YhdmDetailedComponent(
                 append(",")
             }
         }
-        if(genre.endsWith(",")){
-            genre= genre.subSequence(0, genre.length-1).toString()
+        if (genre.endsWith(",")) {
+            genre = genre.subSequence(0, genre.length - 1).toString()
         }
 
-        return CartoonImpl().apply {
-            id = summary.id
-            url = summary.url
-            source = summary.source
+        return CartoonImpl(
+            id = summary.id,
+            url = summary.url,
+            source = summary.source,
 
-            this.title = title
-            this.coverUrl = cover
+            title = title,
+            coverUrl = cover,
 
-            this.intro = intro
-            this.description = desc
+            intro = intro,
+            description = desc,
 
-            this.genre = genre
+            genre = genre,
 
-            this.status = status
-            this.updateStrategy = update
+            status = status,
+            updateStrategy = update,
+        ).apply {
+
 
         }
 
