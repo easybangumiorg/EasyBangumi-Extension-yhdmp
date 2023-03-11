@@ -20,4 +20,4 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class com.heyanle.**{*;}
+-keep class com.heyanle.easybangumi_extension.**{*;}

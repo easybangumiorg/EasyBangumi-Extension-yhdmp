@@ -53,6 +53,7 @@ class YhdmDetailedComponent(
         val title = tabs.child(0).children().iterator()
         val epRoot = doc.select("body div.tabs div.movurl ul").iterator()
         val res = arrayListOf<PlayLine>()
+        var index = 0
         while (title.hasNext() && epRoot.hasNext()){
             val tit = title.next()
             val ep = epRoot.next()
@@ -61,12 +62,12 @@ class YhdmDetailedComponent(
                 es.add(it.text())
             }
             val playLine = PlayLine(
-                key = summary.source,
-                id = 0,
+                id = index.toString(),
                 label = tit.text(),
                 episode = es
             )
             res.add(playLine)
+            index ++
         }
         return res
     }
