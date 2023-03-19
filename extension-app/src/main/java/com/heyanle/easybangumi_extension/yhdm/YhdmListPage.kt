@@ -132,7 +132,7 @@ suspend fun Source.listPage(
             url = detailUrl,
             title = it.child(1).text(),
             intro = it.child(0).child(0).child(0).child(1).text(),
-            coverUrl = cover
+            coverUrl = url(cover)
         )
 
         r.add(b)

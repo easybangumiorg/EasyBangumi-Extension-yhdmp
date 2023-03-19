@@ -94,11 +94,11 @@ class YhdmDetailedComponent(
                 if (status == Cartoon.STATUS_COMPLETED) {
                     Cartoon.UPDATE_STRATEGY_NEVER
                 } else {
-                    Cartoon.UPDATE_STRATEGY_ONLY_MANUAL
+                    Cartoon.UPDATE_STRATEGY_ONLY_STRICT
                 }
             } else {
                 if (status == Cartoon.STATUS_COMPLETED) {
-                    Cartoon.UPDATE_STRATEGY_ONLY_MANUAL
+                    Cartoon.UPDATE_STRATEGY_ONLY_STRICT
                 } else {
                     Cartoon.UPDATE_STRATEGY_ALWAYS
                 }
@@ -108,11 +108,11 @@ class YhdmDetailedComponent(
         var genre = buildString {
             genreRoot.children().iterator().forEach {
                 append(it.text())
-                append(",")
+                append(", ")
             }
         }
-        if (genre.endsWith(",")) {
-            genre = genre.subSequence(0, genre.length - 1).toString()
+        if (genre.endsWith(", ")) {
+            genre = genre.subSequence(0, genre.length - 2).toString()
         }
 
         return CartoonImpl(

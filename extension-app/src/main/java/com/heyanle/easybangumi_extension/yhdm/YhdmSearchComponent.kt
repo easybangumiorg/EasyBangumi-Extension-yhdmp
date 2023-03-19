@@ -36,14 +36,16 @@ class YhdmSearchComponent(source: YhdmSource) : ComponentWrapper(source), Search
                 val detailUrl = url(it.child(0).child(0).attr("href"))
                 val coverStyle = it.select("div.imgblock")[0].attr("style")
                 val coverPattern = Regex("""(?<=url\(').*(?='\))""")
-                val cover = coverPattern.find(coverStyle)?.value ?: ""
-
+                var cover = coverPattern.find(coverStyle)?.value ?: ""
+                if (cover.startsWith("//")) {
+                    cover = "https:${cover}"
+                }
                 val b = CartoonCoverImpl(
                     id = "${this@YhdmSearchComponent.source.key}-$detailUrl",
                     title = it.child(1).text(),
                     url = detailUrl,
                     intro = it.select("div.itemimgtext")[0].text(),
-                    coverUrl = "https:${cover}",
+                    coverUrl = url(cover),
                     source = this@YhdmSearchComponent.source.key,
                 )
                 r.add(b)
