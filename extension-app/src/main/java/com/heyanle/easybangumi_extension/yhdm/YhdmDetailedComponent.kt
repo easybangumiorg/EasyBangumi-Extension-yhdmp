@@ -1,9 +1,11 @@
 package com.heyanle.easybangumi_extension.yhdm
 
+import com.heyanle.bangumi_source_api.api.ParserException
 import com.heyanle.bangumi_source_api.api.SourceResult
 import com.heyanle.bangumi_source_api.api.component.ComponentWrapper
 import com.heyanle.bangumi_source_api.api.component.detailed.DetailedComponent
 import com.heyanle.bangumi_source_api.api.component.page.PageComponent
+import com.heyanle.bangumi_source_api.api.component.update.UpdateComponent
 import com.heyanle.bangumi_source_api.api.entity.Cartoon
 import com.heyanle.bangumi_source_api.api.entity.CartoonImpl
 import com.heyanle.bangumi_source_api.api.entity.CartoonSummary
@@ -21,7 +23,7 @@ import org.jsoup.nodes.Document
  */
 class YhdmDetailedComponent(
     source: YhdmSource
-) : ComponentWrapper(source), DetailedComponent {
+) : ComponentWrapper(source), DetailedComponent, UpdateComponent {
 
 
     override suspend fun getDetailed(summary: CartoonSummary): SourceResult<Cartoon> {
@@ -42,19 +44,53 @@ class YhdmDetailedComponent(
         }
     }
 
+    override suspend fun update(
+        cartoon: Cartoon,
+        oldPlayLine: List<PlayLine>
+    ): SourceResult<Cartoon> {
+        return withResult(Dispatchers.IO) {
+
+            when (val n = getAll(CartoonSummary(cartoon.id, cartoon.source, cartoon.url))) {
+                is SourceResult.Complete -> {
+                    n.data.first.apply {
+
+                        val newPlayLine = n.data.second
+
+                        if (oldPlayLine.size != newPlayLine.size) {
+                            isUpdate = true
+                        } else {
+                            isUpdate = false
+                            for (i in oldPlayLine.indices) {
+                                if (oldPlayLine[i].episode.size != newPlayLine[i].episode.size) {
+                                    isUpdate = true
+                                    break
+                                }
+                            }
+                        }
+                    }
+                }
+
+                is SourceResult.Error -> {
+                    throw n.throwable
+                }
+            }
+        }
+
+    }
+
     private fun getDoc(summary: CartoonSummary): Document {
         val d = networkHelper.cloudflareUserClient.newCall(GET(url(summary.url)))
             .execute().body?.string() ?: throw NullPointerException()
         return Jsoup.parse(d)
     }
 
-    private fun playLine(doc: Document, summary: CartoonSummary) : List<PlayLine> {
+    private fun playLine(doc: Document, summary: CartoonSummary): List<PlayLine> {
         val tabs = doc.select("body div.tabs")[0]
         val title = tabs.child(0).children().iterator()
         val epRoot = doc.select("body div.tabs div.movurl ul").iterator()
         val res = arrayListOf<PlayLine>()
         var index = 0
-        while (title.hasNext() && epRoot.hasNext()){
+        while (title.hasNext() && epRoot.hasNext()) {
             val tit = title.next()
             val ep = epRoot.next()
             val es = arrayListOf<String>()
@@ -67,7 +103,7 @@ class YhdmDetailedComponent(
                 episode = es
             )
             res.add(playLine)
-            index ++
+            index++
         }
         return res
     }
