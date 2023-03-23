@@ -21,10 +21,10 @@ android {
     buildTypes {
         release {
             postprocessing {
-                isRemoveUnusedCode = true
-                isRemoveUnusedResources = true
+                isRemoveUnusedCode = false
+                isRemoveUnusedResources = false
                 isObfuscate = false
-                isOptimizeCode = true
+                isOptimizeCode = false
                 proguardFiles("proguard-rules.pro")
             }
         }
