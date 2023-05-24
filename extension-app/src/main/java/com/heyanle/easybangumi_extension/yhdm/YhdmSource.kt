@@ -17,7 +17,7 @@ fun url(source: String): String {
 class YhdmSource: ExtensionSource(), ExtensionIconSource {
 
     companion object {
-        const val ROOT_URL = "https://m.yhdmp.net"
+        const val ROOT_URL = "https://m.yhdmz.org"
 
 
     }
